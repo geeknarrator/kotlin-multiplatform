@@ -13,7 +13,7 @@ fun main(): Unit = runBlocking {
     val parsingChannel = Channel<LogLine?>()
     val fileName = "logfile.txt"
     startLogFileAppend(fileName, Duration.parse("1s"))
-    delay(5000)
+    //delay(5000)
     readLogLines(fileName, inputChannel)
     startParsingLogLines(inputChannel, parsingChannel)
     val countingMetricsJob = startCountingMetrics(parsingChannel)
@@ -26,7 +26,7 @@ fun main(): Unit = runBlocking {
     parsingChannel.close()
 }
 
-fun generateRandomLogLine(): LogLine {
+fun generateRandomLogLine(): String {
     val timestamp = Clock.System.now().toEpochMilliseconds()
     val level = LogLevel.values().random()
     val endpoint = Endpoint.values().random()
@@ -37,7 +37,7 @@ fun generateRandomLogLine(): LogLine {
         LogLevel.DEBUG -> "Debug information."
         LogLevel.TRACE -> "Trace information"
     }
-    return LogLine(level, endpoint, timestamp, message)
+    return LogLine(level, endpoint, timestamp, message).let { logLine -> "${logLine.level} ${logLine.endpoint} ${logLine.timestamp} ${logLine.message}" }
 }
 
 fun CoroutineScope.startParsingLogLines(inputLineChannel: Channel<String>, output: Channel<LogLine?>) = launch {
@@ -59,8 +59,13 @@ fun stringToLogLine(logLineStr: String): LogLine? {
 }
 
 fun CoroutineScope.startCountingMetrics(input: Channel<LogLine?>) = launch {
+    val levelCount = mutableMapOf<LogLevel, Int>()
+    val messageCount = mutableMapOf<String, Int>()
+
     for (line in input) {
-        println("CurrentLine $line")
+        levelCount[line?.level?:break] = levelCount[line.level]?.let { currentCount -> currentCount + 1 }?:0
+        messageCount[line?.message?:break] = messageCount[line.message]?.let { currentCount -> currentCount + 1 }?:0
+        println("Current counters $levelCount $messageCount")
     }
 }
 
