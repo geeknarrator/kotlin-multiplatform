@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "1.9.20-RC2"
+    kotlin("multiplatform") version "1.9.21"
 }
 
 group = "me.user"
@@ -33,5 +33,9 @@ kotlin {
     sourceSets {
         val nativeMain by getting
         val nativeTest by getting
+        commonMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0-RC2")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+        }
     }
 }
