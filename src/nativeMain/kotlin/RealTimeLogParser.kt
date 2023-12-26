@@ -61,13 +61,17 @@ fun stringToLogLine(logLineStr: String): LogLine? {
 fun CoroutineScope.startCountingMetrics(input: Channel<LogLine?>) = launch {
     val levelCount = mutableMapOf<LogLevel, Int>()
     val messageCount = mutableMapOf<String, Int>()
-
     for (line in input) {
-        levelCount[line?.level?:break] = levelCount[line.level]?.let { currentCount -> currentCount + 1 }?:0
-        messageCount[line?.message?:break] = messageCount[line.message]?.let { currentCount -> currentCount + 1 }?:0
+        line?:continue
+        levelCount[line.level] = levelCount[line.level]?.let { currentCount -> currentCount + 1 }?:0
+        messageCount[line.message] = messageCount[line.message]?.let { currentCount -> currentCount + 1 }?:0
         println("Current counters $levelCount $messageCount")
     }
 }
+
+/**
+ *
+ */
 
 @OptIn(ExperimentalForeignApi::class)
 fun CoroutineScope.startLogFileAppend(fileName: String, duration: Duration) = launch {
