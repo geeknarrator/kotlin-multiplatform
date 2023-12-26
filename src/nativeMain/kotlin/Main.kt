@@ -3,25 +3,16 @@ import platform.posix.*
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
-fun main1() {
-    val fileName = "big.txt"
+fun main() {
     measureTimeMillis {
-        fileName.let { fileName ->
-            readLines(fileName)
+        val kvStore = KVStore<String, Int>(true)
+        val keyList = listOf("kv", "geek", "narrator", "youtube", "subscribe", "like", "comment", "share")
+        for (i in 1..1000000) {
+            val key = keyList.random()
+            kvStore.store(key, i)
+            println(kvStore.get(key))
         }
-    }.let { nano -> println("Total time with chunk size 1000 $nano ms") }
-
-  /*  measureTimeMillis {
-        fileName.let { fileName ->
-            readLines(fileName)
-        }
-    }.let { nano -> println("Total time with chunk size 100 $nano ms") }
-
-    measureTimeMillis {
-        fileName.let { fileName ->
-            readLines(fileName)
-        }
-    }.let { nano -> println("Total time with chunk size 10000 $nano ms") }*/
+    }.let { time -> println("Took $time ms") }
 }
 
 @OptIn(ExperimentalForeignApi::class)

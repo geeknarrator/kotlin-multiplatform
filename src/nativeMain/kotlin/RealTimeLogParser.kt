@@ -8,7 +8,8 @@ import platform.posix.fopen
 import platform.posix.fprintf
 import kotlin.time.Duration
 
-fun main(): Unit = runBlocking {
+
+fun runRealTimeLogParser(): Unit = runBlocking {
     val inputChannel = Channel<String>()
     val parsingChannel = Channel<LogLine?>()
     val fileName = "logfile.txt"
@@ -61,9 +62,9 @@ fun stringToLogLine(logLineStr: String): LogLine? {
 fun CoroutineScope.startCountingMetrics(input: Channel<LogLine?>) = launch {
     val levelCount = mutableMapOf<LogLevel, Int>()
     val messageCount = mutableMapOf<String, Int>()
+
     for (line in input) {
-        line?:continue
-        levelCount[line.level] = levelCount[line.level]?.let { currentCount -> currentCount + 1 }?:0
+        levelCount[line?.level?:break] = levelCount[line.level]?.let { currentCount -> currentCount + 1 }?:0
         messageCount[line.message] = messageCount[line.message]?.let { currentCount -> currentCount + 1 }?:0
         println("Current counters $levelCount $messageCount")
     }
