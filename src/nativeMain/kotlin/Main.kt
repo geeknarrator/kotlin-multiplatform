@@ -1,18 +1,24 @@
 import kotlinx.cinterop.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import platform.posix.*
 import kotlin.random.Random
 import kotlin.system.measureTimeMillis
 
-fun main() {
+fun main() = runBlocking {
+    val kvStore = KVStore<String, Int>(false)
+    val keyList = listOf("kv", "geek", "narrator", "youtube", "subscribe", "like", "comment", "share")
     measureTimeMillis {
-        val kvStore = KVStore<String, Int>(true)
-        val keyList = listOf("kv", "geek", "narrator", "youtube", "subscribe", "like", "comment", "share")
-        for (i in 1..1000000) {
-            val key = keyList.random()
-            kvStore.store(key, i)
-            println(kvStore.get(key))
+         coroutineScope {
+            for (i in 1..1000000) {
+                val key = keyList.random()
+                launch {
+                    kvStore.store(key, i)
+                }
+            }
         }
-    }.let { time -> println("Took $time ms") }
+    }.let { time -> println("Took $time ms, final store state ${kvStore.innerKvStore}") }
 }
 
 @OptIn(ExperimentalForeignApi::class)
